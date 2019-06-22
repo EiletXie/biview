@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>销售BI视图</title>
+    <h1>HELLO,SUNTAK BI WITH ECHART</h1>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script th:src="@{/echart/echarts.min.js}"></script>
+    <!-- 引入 ECharts 文件 -->
+    <script type="text/javascript" th:src="@{/jquery/jquery-3.3.1.min.js}"></script>
+
+    <!-- Bootstrap -->
+    <link th:href="@{/bootstrap-3.3.7-dist/css/bootstrap.min.css}" rel="stylesheet" />
+    <script th:src="@{/bootstrap-3.3.7-dist/js/bootstrap.min.js}"></script>
+    <!-- ioc 标签头 -->
+    <link rel="icon" type="image/x-icon" th:href="@{/images/8d.ico}" />
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 600px;height:400px;"></div>
+<div id="circleView" style="width: 600px;height:400px;"></div>
+<button id="changeBtn">测试</button>
+<!-- Footer -->
+<div th:fragment="footer" class="navbar-fixed-bottom">
+    <div class="container text-center">
+        崇达技术股份有限公司 © Suntak 8D
+    </div>
+</div>
+
+<a th:href="${#httpServletRequest.getScheme() + '://' + #httpServletRequest.getServerName() + ':' + #request.getServerPort()  + #request.getContextPath() + '/'} "
+   id="contextPath"></a>
+
+<script type="text/javascript">
+    var contextPath = $('#contextPath').attr('href');
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // 指定图表的配置项和数据
+    var option = {
+        title: {
+            text: '销售员排名'
+        },
+        tooltip: {},
+        legend: {
+            data:['销量']
+        },
+        xAxis: {
+            data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+        },
+        yAxis: {},
+        series: [{
+            name: '销量',
+            type: 'bar',
+            data: [5, 20, 36, 10, 10, 20]
+        }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    // 绘制图表。
+    echarts.init(document.getElementById('circleView')).setOption({
+        series: {
+            type: 'pie',
+            data: [
+                {name: '工控电子', value: 1212},
+                {name: '航空航天', value: 2323},
+                {name: '军工板', value: 919}
+            ]
+        }
+    });
+
+     $("#changeBtn").click(function () {
+        $.ajax({
+            url: contextPath + "salesView/test",
+            method:"GET",
+            success:function (result) {
+                var data = result.extend;
+                console.log(data);
+                myChart.setOption({
+                    xAxis: {
+                        data: data.names
+                    },
+                    series: [{
+                        // 根据名字对应到相应的系列
+                        name: '销售业绩/万',
+                        data: data.nums
+                    }]
+                })
+            }
+        })
+     });
+</script>
+</body>
+</html>

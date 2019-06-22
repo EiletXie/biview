@@ -1,0 +1,4 @@
+server:
+   port: 8066
+   servlet:
+      context-path: /suntakBI
