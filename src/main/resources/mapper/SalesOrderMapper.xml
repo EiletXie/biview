@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.suntak.biview.dao.SalesOrderDao">
+	<resultMap id="salesList" type="java.util.Map">
+		<result property="objectname" column="objectname"/>
+		<result property="total" column="total"/>
+	</resultMap>
+
+    <select id="rankSalesEnigneer" resultMap="salesList">
+		SELECT * FROM TABLE(CUX_BI_COMMON_PKG.rank_sale_engineer(#{p_year},#{p_month}))
+	</select>
+
+    <select id="rankSalesArea" resultMap="salesList">
+	    SELECT * FROM TABLE(CUX_BI_COMMON_PKG.rank_sale_area(#{p_year},#{p_month}))
+	</select>
+
+	<select id="rankAllSalesEnigneer" resultMap="salesList">
+		SELECT * FROM TABLE(CUX_BI_COMMON_PKG.rank_all_sale_engineer(#{p_year},#{p_month}))
+	</select>
+
+	<select id="allTargetSalesEnigneer" resultMap="salesList">
+	    SELECT * FROM TABLE(CUX_BI_COMMON_PKG.all_target_sale_engineer(#{p_date}))
+	</select>
+
+
+	<select id="allTargetSalesArea" resultMap="salesList">
+	    SELECT * FROM TABLE(CUX_BI_COMMON_PKG.all_target_sale_area(#{p_date}))
+	</select>
+
+	<select id="getSalesTotal" resultType="java.lang.Float">
+	    SELECT CUX_BI_COMMON_PKG.get_sales_total(#{p_year},#{p_month}) FROM DUAL
+	</select>
+
+	<select id="getTargetSalesTotal" resultType="java.lang.Float">
+	    SELECT CUX_BI_COMMON_PKG.get_target_sales_total(#{p_date}) FROM DUAL
+	</select>
+</mapper>

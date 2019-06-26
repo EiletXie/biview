@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>销售BI视图</title>
-    <h1>HELLO,SUNTAK BI WITH ECHART</h1>
     <meta charset="utf-8">
     <!-- 引入 ECharts 文件 -->
-    <script th:src="@{/echart/echarts.min.js}"></script>
+    <script th:src="@{/echart/echarts.js}"></script>
     <!-- 引入 ECharts 文件 -->
     <script type="text/javascript" th:src="@{/jquery/jquery-3.3.1.min.js}"></script>
 
@@ -14,13 +13,85 @@
     <link th:href="@{/bootstrap-3.3.7-dist/css/bootstrap.min.css}" rel="stylesheet" />
     <script th:src="@{/bootstrap-3.3.7-dist/js/bootstrap.min.js}"></script>
     <!-- ioc 标签头 -->
-    <link rel="icon" type="image/x-icon" th:href="@{/images/8d.ico}" />
+    <link rel="icon" type="image/x-icon" th:href="@{/images/chart.ico}" />
+
+    <style type="text/css">
+
+        body {
+            padding-top:70px;
+            padding-bottom: 20px;
+        }
+
+
+        td,th{
+            text-align: center;
+            align:middle;
+        }
+
+        #main {
+            padding: 50px;
+        }
+    </style>
 </head>
 <body>
-<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div id="main" style="width: 600px;height:400px;"></div>
-<div id="circleView" style="width: 600px;height:400px;"></div>
-<button id="changeBtn">测试</button>
+
+<div id="main" class="row" >
+    <div id="leftView" class="col-md-7">
+        <!-- 计划完成情况 -->
+        <div id="productPlanView" style="width: 500px;height:180px;"></div>
+        <!-- 业务属区饼图 -->
+        <div id="circleView" style="width: 800px;height:300px;"></div>
+        <!-- 业务员排名柱状图 -->
+        <div id="salesView" style="width: 1000px;height:350px;"></div>
+    </div>
+    <div id="rightView" class="col-md-5">
+         <!-- 业务属区计划完成情况-->
+         <div id="areaPlanView">
+             <div class="panel panel-primary">
+                 <div class="panel-heading">业务属区计划完成情况</div>
+                 <div class="panel-body">
+                     <table class="table table-bordered" id="areaPlan_table">
+                         <thead>
+                             <tr class="text-center primary">
+                                 <td></td>
+                                 <td>计划</td>
+                                 <td>实际</td>
+                                 <td>达成率</td>
+                             </tr>
+                         </thead>
+                         <tbody>
+
+                         </tbody>
+                     </table>
+                 </div>
+             </div>
+
+         </div>
+        <!-- 销售员计划完成情况-->
+         <div id="salesPlanView">
+             <div class="panel panel-primary">
+                 <div class="panel-heading">任务完成倒数</div>
+                 <div class="panel-body">
+                     <table class="table table-bordered" id="salesPlan_table">
+                         <thead>
+                         <tr class="text-center primary">
+                             <td>业务员</td>
+                             <td>计划</td>
+                             <td>实际</td>
+                             <td>达成率</td>
+                         </tr>
+                         </thead>
+                         <tbody>
+
+                         </tbody>
+                     </table>
+                 </div>
+             </div>
+         </div>
+    </div>
+</div>
+
+
 <!-- Footer -->
 <div th:fragment="footer" class="navbar-fixed-bottom">
     <div class="container text-center">
@@ -34,63 +105,197 @@
 <script type="text/javascript">
     var contextPath = $('#contextPath').attr('href');
     // 基于准备好的dom，初始化echarts实例
-    var myChart = echarts.init(document.getElementById('main'));
+    var salesChart = echarts.init(document.getElementById('salesView'));
 
-    // 指定图表的配置项和数据
-    var option = {
+    // 使用刚指定的配置项和数据显示图表。
+    salesChart.setOption({
         title: {
-            text: '销售员排名'
+            text: '业务员排名'
         },
         tooltip: {},
         legend: {
-            data:['销量']
+            data:['接单金额']
         },
         xAxis: {
-            data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+            data: []
         },
         yAxis: {},
         series: [{
-            name: '销量',
+            name: '接单金额/万',
             type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
+            data: []
         }]
-    };
-
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
-
-    // 绘制图表。
-    echarts.init(document.getElementById('circleView')).setOption({
-        series: {
-            type: 'pie',
-            data: [
-                {name: '工控电子', value: 1212},
-                {name: '航空航天', value: 2323},
-                {name: '军工板', value: 919}
-            ]
-        }
     });
 
-     $("#changeBtn").click(function () {
-        $.ajax({
-            url: contextPath + "salesView/test",
-            method:"GET",
-            success:function (result) {
-                var data = result.extend;
-                console.log(data);
-                myChart.setOption({
-                    xAxis: {
-                        data: data.names
-                    },
-                    series: [{
-                        // 根据名字对应到相应的系列
-                        name: '销售业绩/万',
-                        data: data.nums
-                    }]
-                })
+
+    var productPlanChart = echarts.init(document.getElementById('productPlanView'));
+    productPlanChart.setOption({
+        title: {
+            text: '本月计划完成情况'
+        },
+        xAxis: {},
+        yAxis:{
+            data:['实际完成','计划完成'],
+            axisLabel: {
+                interval:0,
+                rotate:40
             }
-        })
+        },
+        series: [{
+            name: '完成情况',
+            type: 'bar',
+            data: []
+        }]
+
+    });
+
+    var areaChart = echarts.init(document.getElementById('circleView'));
+    // 绘制图表
+    areaChart.setOption({
+        title: {
+            text: '业务属区排名'
+        },
+        series: {
+            roseType: 'angle',
+            type: 'pie',
+            data: []
+        },
+
+    });
+
+    // 页面打开时就加载
+     $(function () {
+         $.ajax({
+             url: contextPath + "salesView/test",
+             method: "GET",
+             success: function (result) {
+                 var data = result.extend;
+                 console.log(data);
+                 //1、 加载表格数据
+                 loadTableData(data);
+                 //2、 设置业务员排名
+                 salesChart.setOption({
+                     xAxis: {
+                         data: data.saledata.usernameList,
+                         axisLabel: {
+                             interval: 0,
+                             rotate: 40
+                         }
+                     },
+                     series: [{
+                         // 根据名字对应到相应的系列
+                         name: '接单金额/万',
+                         data: data.saledata.totalList
+                     }]
+                 })
+
+                 //3、 设置业务属区占比
+                 var brower = [];
+                 var arealegend = [];
+
+                 $.each(data.areadata, function (index, item) {
+                     brower.push({
+                         name: item.objectname,
+                         value: item.total
+                     });
+                     arealegend.push({
+                         name: item.objectname
+                     });
+                 });
+                 areaChart.setOption({
+                     title: {
+                         text: '业务属区排名'
+                     },
+                     series: {
+                         roseType: 'angle',
+                         type: 'pie',
+                         label: {
+                             normal: {
+                                 show: true,
+                                 formatter: '{b}: {c}({d}%)' //自定义显示格式(b:name, c:value, d:百分比)
+                             }
+                         },
+                         data: brower
+                     },
+                     legend: {
+                         type: 'scroll',
+                         orient: 'vertical',
+                         right: -30,
+                         bottom: 0,
+                         data: data.arealegend,
+                         selected: data.selected
+                     },
+                 });
+
+                 var totalSales = data.totalSales;
+                 // 4、 设置 计划接单总额完成情况
+                 productPlanChart.setOption({
+                     title: {
+                         text: '目标接单金额完成率'+ totalSales.percentage
+                     },
+                     xAxis: {},
+                     yAxis:{
+                         data:['实际完成','计划完成'],
+                         axisLabel: {
+                             interval:0,
+                             rotate:40
+                         }
+                     },
+                     series:[{
+                         name: '完成情况',
+                         type: 'bar',
+                         data: [totalSales.fact_amount,totalSales.target_amount],
+                         itemStyle: {
+                             normal: {
+                                 label: {
+                                     show: true, //开启显示
+                                     position: 'right', //在上方显示
+                                     textStyle: { //数值样式
+                                         color: 'green',
+                                         fontSize: 12,
+                                         fontFamily: "Arial",
+                                         fontStyle: "italic"
+                                     }
+                                 }
+                             }
+                         }
+                         }]
+                 })
+             }
+         })
      });
+
+     // 倒数业务员和业务属区计划与实际比较 的 表格中数据加载
+     function loadTableData(data) {
+         // 清除已加载的 文件下载数据
+         $("#areaPlan_table tbody").empty();
+         $("#salesPlan_table tbody").empty();
+         var salesList = data.lastSalesList;
+         $.each(salesList, function (index, item) {
+         var usernameTd = $("<td class='success'></td>").append(item.object_name);
+         var planTd = $("<td></td>").append(item.target_amount);
+         var factTd = $("<td></td>").append(item.fact_amount);
+         var percentTd = $("<td></td>").append(item.percentage);
+         $("<tr></tr>").append(usernameTd)
+             .append(planTd)
+             .append(factTd)
+             .append(percentTd).appendTo("#salesPlan_table tbody")
+
+        });
+
+         var areaList = data.areaTargetList;
+         $.each(areaList, function (index, item) {
+             var areanameTd = $("<td class='success'></td>").append(item.object_name);
+             var planTd = $("<td></td>").append(item.target_amount);
+             var factTd = $("<td></td>").append(item.fact_amount);
+             var percentTd = $("<td></td>").append(item.percentage);
+             $("<tr></tr>").append(areanameTd)
+                 .append(planTd)
+                 .append(factTd)
+                 .append(percentTd).appendTo("#areaPlan_table tbody")
+
+         });
+     }
 </script>
 </body>
 </html>
